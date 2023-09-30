@@ -49,7 +49,7 @@ const ReviewList = () => {
     </span>
 
         {reviews.map(({name, email, comment}) =>
-            <div className="mx-4 my-5 p-6 shadow-lg rounded-md bg-slate-800">
+            <div key={email} className="mx-4 my-5 p-6 shadow-lg rounded-md bg-slate-800">
                 <span className="flex">
                     <BiUserCircle size={30} className="text-sky-500"/>
                     <h5 className="text-2xl mb-6 ms-3 text-sky-400">{name}</h5>      
