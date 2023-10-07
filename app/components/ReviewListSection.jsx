@@ -35,9 +35,9 @@ const ReviewList = () => {
     }, [])
 
   return (
-    <div className="text-white p-10 grid">
+    <div className="min-h-screen">
 
-    <span className="flex justify-center" loading={loading}>
+    <span className="flex justify-center pt-10" loading={loading}>
         <ClipLoader
         loading={loading}
         color="white"
@@ -47,17 +47,18 @@ const ReviewList = () => {
         data-testid="loader"
       />
     </span>
-
+    <div className="text-white p-4 lg:grid lg:grid-cols-3 h-auto">
         {reviews.map(({name, email, comment}) =>
             <div key={email} className="mx-4 my-5 p-6 shadow-lg rounded-md bg-slate-800">
                 <span className="flex">
                     <BiUserCircle size={30} className="text-sky-500"/>
                     <h5 className="text-2xl mb-6 ms-3 text-sky-400">{name}</h5>      
                 </span>
-                
                 <p>{comment}</p>
             </div>
         )}
+    </div>
+
     </div>
 
     );
