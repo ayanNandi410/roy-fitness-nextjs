@@ -15,7 +15,7 @@ const navLinks = [
     path: "/reviews",
   },
   {
-    title: "Contact",
+    title: "Know More",
     path: "/contact",
   },
 ];
