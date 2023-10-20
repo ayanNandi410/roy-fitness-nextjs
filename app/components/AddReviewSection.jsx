@@ -8,6 +8,7 @@ import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied
 import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAltOutlined';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
+import addData from "../firebase/firestore/addReview";
 
 import { purple, red } from '@mui/material/colors';
 
@@ -53,23 +54,36 @@ IconContainer.propTypes = {
 
 const AddReview = () => {
 
-    const [message, setMessage] = useState("Please enter correct name...");
+    const [message, setMessage] = useState("");
+    const [formData, setFormData] = useState({
+      name: "",
+      email: "",
+      rating: "",
+      comment: "",
+    });
 
-    const formRef = useRef();
-    const submitContact = async (e) => {
-    e.preventDefault();
-    console.log(e);
-    // const res = await sendContactForm({
-    //   name: e.target[0].value,
-    //   email: e.target[1].value,
-    //   comment: e.target[2].value,
-    // });
-    if (res == 0) {
-      setMessage("Thank you for your valuable comment!");
-      formRef.current.reset();
-    } else {
-      setMessage("Something went wrong! Please try again");
+    const handleInput = (e) => {
+      const fieldName = e.target.name;
+      const fieldValue = e.target.value;
+
+      setFormData((prevState) => ({
+        ...prevState,
+        [fieldName]: fieldValue
+      }));
     }
+
+    const submitForm = async (e) => {
+      e.preventDefault();
+      console.log(e);
+      console.log(formData);
+
+      const {result, error} = addData("reviews",formData.email, formData);
+
+      if (!error) {
+        setMessage("Thank you for your valuable comment!");
+      } else {
+        setMessage("Something went wrong! Please try again");
+      }
   };
 
   return (
@@ -78,7 +92,7 @@ const AddReview = () => {
             <h1 className="text-4xl font-semibold text-white">Share Your Experience</h1>
         </div>
         <div className="mx-10 md:mx-20 mb-20 flex flex-col justify-center">
-            <h1 className="text-sm text-blue-gray-400">This information will be displayed publicly so be careful what you share.</h1>
+            <h1 className="text-sm ms-9 text-slate-500">This information will be displayed publicly so be careful what you share.</h1>
             
             { message!="" && 
                 <div id="toast-bottom-right" className="fixed flex items-center w-auto max-w-xs p-4 space-x-4 text-white bg-sky-900 rounded-lg right-5 bottom-5" role="alert">
@@ -99,14 +113,17 @@ const AddReview = () => {
             }
 
 
-            <form ref={formRef} onSubmit={submitContact}>
+            <form onSubmit={submitForm}>
                 
                 <label className="block mx-10 my-5">
                     <span className="block text-sm mb-2 font-medium text-slate-300">Full Name</span>
                     <input
                         required
                         placeholder="Name"
-                        type={"text"}
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInput}
+                        type="text"
                         className="mt-1 block w-2/4 px-3 py-2 bg-white text-slate-800 border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
                             focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                         minLength={3}
@@ -119,7 +136,10 @@ const AddReview = () => {
                     <input
                         required
                         placeholder="Email Address"
-                        type={"email"}
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInput}
                         className="mt-1 block w-2/4 px-3 py-2 bg-white text-slate-800 border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
                         focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                         minLength={3}
@@ -130,12 +150,13 @@ const AddReview = () => {
                 <label className="block mx-10 my-5">
                     <span className="block text-sm mb-2 font-medium text-slate-300">Rating</span>
                     <StyledRating
-                    name="highlight-selected-only"
-                    defaultValue={3}
-                    IconContainerComponent={IconContainer}
-                    getLabelText={(value) => customIcons[value].label}
-                    highlightSelectedOnly
-                    className="bg-slate-200 p-2 rounded-md"
+                      name="rating"
+                      onChange={handleInput}
+                      defaultValue={2}
+                      IconContainerComponent={IconContainer}
+                      getLabelText={(value) => customIcons[value].label}
+                      highlightSelectedOnly
+                      className="bg-slate-200 p-2 rounded-md"
                     />
                 </label>
             
@@ -143,6 +164,9 @@ const AddReview = () => {
                     <span className="block text-sm mb-2 font-medium text-slate-300">Reviews and Comments</span>
                     <textarea
                     required
+                    name="comment"
+                    value={formData.comment}
+                    onChange={handleInput}
                     placeholder="Share your thoughts to help others"
                     rows={5}
                     className="mt-1 block w-3/4 px-3 py-2 bg-white text-slate-800 border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
