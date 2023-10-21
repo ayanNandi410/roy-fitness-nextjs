@@ -75,9 +75,13 @@ const AddReview = () => {
     const submitForm = async (e) => {
       e.preventDefault();
       console.log(e);
-      console.log(formData);
 
-      const {result, error} = addData("reviews",formData.email, formData);
+      const newEntry = {
+        ...formData,
+        timestamp: new Date().toLocaleString()
+      };
+
+      const {result, error} = addData("reviews",formData.email, newEntry);
 
       if (!error) {
         setMessage("Thank you for your valuable comment!");
@@ -148,15 +152,16 @@ const AddReview = () => {
                 </label>
 
                 <label className="block mx-10 my-5">
-                    <span className="block text-sm mb-2 font-medium text-slate-300">Rating</span>
+                    <span className="block text-sm mb-2 font-medium text-slate-300">Rating <span className="text-slate-500">( 4 selected by default )</span></span>
                     <StyledRating
                       name="rating"
                       onChange={handleInput}
-                      defaultValue={2}
+                      defaultValue={4}
                       IconContainerComponent={IconContainer}
                       getLabelText={(value) => customIcons[value].label}
                       highlightSelectedOnly
                       className="bg-slate-200 p-2 rounded-md"
+                      size="large"
                     />
                 </label>
             
@@ -175,7 +180,7 @@ const AddReview = () => {
                 </label>
 
                 <label className="flex justify-center">
-                    <button type="submit" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-400 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-sky-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                    <button type="submit" className=" text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-400 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-sky-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                     Submit Review
                     </button>
                 </label>

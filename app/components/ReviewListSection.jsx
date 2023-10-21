@@ -2,11 +2,57 @@
 
 import React, { useState, useEffect } from "react";
 import firebase_app from "../firebase/config";
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, orderBy, query } from 'firebase/firestore';
 import {
    BiUserCircle
 } from "react-icons/bi";
 import ClipLoader from "react-spinners/ClipLoader";
+import Rating from '@mui/material/Rating';
+import PropTypes from 'prop-types';
+import { styled } from '@mui/material/styles';
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAltOutlined';
+import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
+
+const StyledRating = styled(Rating)(({ theme }) => ({
+  '& .MuiRating-iconEmpty .MuiSvgIcon-root': {
+    color: theme.palette.action.disabled,
+  },
+}));
+
+const customIcons = {
+  1: {
+    icon: <SentimentVeryDissatisfiedIcon color="error" />,
+    label: 'Very Dissatisfied',
+  },
+  2: {
+    icon: <SentimentDissatisfiedIcon color="secondary" />,
+    label: 'Dissatisfied',
+  },
+  3: {
+    icon: <SentimentSatisfiedIcon color="warning" />,
+    label: 'Neutral',
+  },
+  4: {
+    icon: <SentimentSatisfiedAltIcon color="info" />,
+    label: 'Satisfied',
+  },
+  5: {
+    icon: <SentimentVerySatisfiedIcon color="success" />,
+    label: 'Very Satisfied',
+  },
+};
+
+function IconContainer(props) {
+  const { value, ...other } = props;
+  return <span {...other}>{customIcons[value].icon}</span>;
+}
+
+IconContainer.propTypes = {
+  value: PropTypes.number.isRequired,
+};
 
 
 const db = getFirestore(firebase_app)
@@ -18,15 +64,17 @@ const ReviewList = () => {
 
     useEffect(() => {
     const getReviewList = async () => {
-    await getDocs(collection(db,'reviews')).then((todo) => {
+    await getDocs(query(collection(db,'reviews'), orderBy("timestamp","desc"))).then((todo) => {
         let todoData = todo.docs.map((doc) => ({
                     name: doc.data().name,
                     email: doc.data().email,
                     comment: doc.data().comment,
+                    rating: doc.data().rating,
+                    timestamp: doc.data().timestamp,
                 }));
         setReviews(todoData);
         setLoading(false);
-        console.log(todoData);
+
         }).catch((err) => {
         console.log(err);
         })
@@ -92,14 +140,25 @@ const ReviewList = () => {
         </div>
     }
 
-    <div className="text-white lg:grid lg:grid-cols-3 h-auto">
-        {reviews.map(({name, email, comment}) =>
+    <div className="text-white lg:grid lg:grid-cols-2 h-auto">
+        {reviews.map(({name, email, comment, rating, timestamp}) =>
             <div key={email} className="mx-4 my-5 p-6 shadow-lg rounded-md bg-slate-800">
-                <span className="flex">
-                    <BiUserCircle size={30} className="text-sky-500"/>
-                    <h5 className="text-2xl mb-6 ms-3 text-sky-400">{name}</h5>      
+                <span className="flex justify-between">
+                    <span className="text-2xl flex flex-row mb-6 text-sky-400"><BiUserCircle size={30} className="text-sky-500 me-2"/>{name}</span>
+                    
+                    <StyledRating
+                        name="read-only" 
+                        className="ms-10 rounded-md border-2 border-slate-600 px-2 py-1 h-fit text-slate-400" 
+                        value={parseInt(rating)} 
+                        IconContainerComponent={IconContainer}
+                        getLabelText={(value) => customIcons[value].label}
+                        highlightSelectedOnly
+                        size="small"
+                        readOnly />   
                 </span>
+                <hr className="mb-4 w-full m-auto text-slate-700"/>
                 <p>{comment}</p>
+                <p className="text-slate-500 text-sm mt-8 flex justify-center">On {timestamp}</p>
             </div>
         )}
     </div>
